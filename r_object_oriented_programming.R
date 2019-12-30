@@ -1,6 +1,12 @@
-kSimPersonVector <- vector()
+#This program is prototype (R oop experimenting)
+#Author: Isaac Taylor
+#Updated: 12/30/2019
+#vector to store created persons
+persons.vector <- vector()
+#creation of SimPerson  class
 setClass("SimPerson",
-         slots = c(SSN = "integer", name = "character", age = "integer") )
+         slots = c(SSN = "integer", name = "character", age = "integer"))
+#creation of Student class
 setClass(
   "Student",
   slots = c(
@@ -11,6 +17,7 @@ setClass(
   ),
   contains = "SimPerson"
 )
+#creation of generic funtions that can be customized by specific classes --------
 setGeneric("AddIndividual", function(object, obj.vector) {
   standardGeneric("AddIndividual")
 })
@@ -68,6 +75,7 @@ setGeneric("SetGrade", function(object, x) {
 setGeneric("SetMajor", function(object, x) {
   standardGeneric("SetMajor")
 })
+#custimization of generic methods to fit needs of specific class------------
 setMethod("AddIndividual", "SimPerson", function(object, obj.vector) {
   append(obj.vector, object, after = length(obj.vector))
   return(obj.vector)
@@ -152,11 +160,12 @@ setMethod("SetMajor", "Student", function(object, x) {
   object@major <- x
   return(object)
 })
+#examples of Student instance creation ----------
 student.one <-
   new(
     "Student",
     grade = "Senior",
-    GPA = 4.0,
+    GPA = 3.7,
     major = "Computer Science",
     name = "John",
     age = as.integer(21)
@@ -177,65 +186,72 @@ show(student.vector)
 student.vector[[1]] <- SetGPA(student.vector[[1]], 3.5)
 show(student.vector)
 
+#function to read ssn
 ReadSSN <- function()
-{ 
-  n <- readline(prompt="Enter person ssn: ")
+{
+  n <- readline(prompt = "Enter person ssn: ")
   n <- as.integer(n)
-  if (is.na(n)){
-    n <- readinteger()
+  if (is.na(n)) {
+    n <- ReadSSN
   }
   return(n)
 }
+#function to read name
 ReadName <- function()
-{ 
-  n <- readline(prompt="Enter person name: ")
+{
+  n <- readline(prompt = "Enter person name: ")
   n <- as.character(n)
-  if (is.na(n)){
-    n <- readChar()
+  if (is.na(n)) {
+    n <- ReadName
   }
   return(n)
 }
-ReadAge<- function()
-{ 
-  n <- readline(prompt="Enter person age: ")
+# funtion to read age
+ReadAge <- function()
+{
+  n <- readline(prompt = "Enter person age: ")
   n <- as.integer(n)
-  if (is.na(n)){
+  if (is.na(n)) {
     n <- readinteger()
   }
   return(n)
 }
 
+#funtion that adds a user created SimPerson to a vector, then prompts to
+#add another instance to a vector or not
 PromptAgain <- function(vec, obj) {
   vec <- append(vec, obj)
-  n <- readline(prompt="Do you want to add another person? (0 = no/ 1 = yes): ")
+  n <-
+    readline(prompt = "Do you want to add another person? (0 = no/ 1 = yes): ")
   n <- as.character(n)
-  if (is.na(n)){
-    n <- readChar()
+  if (is.na(n)) {
+    n <- PromptAgain
   }
-  if(n == 1) {
+  if (n == 1) {
     PersonPrompt(vec)
-  }else if(n == 0) {
-    
+  } else if (n == 0) {
     print("Done.")
     return(vec)
   }
 }
 
+#funtion that prompts user to create a SimPerson
 PersonPrompt <- function(vec) {
   ssn <- NULL
   name <- NULL
   age <- NULL
-  print(ssn<-ReadSSN())
-  print(name<-ReadName())
-  print(age<-ReadAge())
-  test.SimPerson <- new("SimPerson", SSN = ssn, name = name, age = age)
-  #show(test.SimPerson)
-  #append(kSimPersonVector, test.SimPerson, after = length(kSimPersonVector))
+  print(ssn <- ReadSSN())
+  print(name <- ReadName())
+  print(age <- ReadAge())
+  test.SimPerson <-
+    new("SimPerson",
+        SSN = ssn,
+        name = name,
+        age = age)
   final.vector = PromptAgain(vec, test.SimPerson)
-  return(show(final.vector))
+  return(final.vector)
 }
 
-
-
-PersonPrompt(kSimPersonVector)
+persons.vector <- PersonPrompt(persons.vector)
+show(persons.vector)
 
