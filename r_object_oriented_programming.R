@@ -1,5 +1,5 @@
-#This program is a prototype (R oop experimenting) 
-#So far, it uses linear regression to analyze the relationship between age and gpa 
+#This program is a prototype (R oop experimenting)
+#So far, it uses linear regression to analyze the relationship between age and gpa
 #(user inputed values)
 #Author: Isaac Taylor
 #Updated: 12/30/2019
@@ -23,6 +23,7 @@ setClass(
 setGeneric("AddIndividual", function(object, obj.vector) {
   standardGeneric("AddIndividual")
 })
+
 setGeneric("PrintSSN", function(object) {
   standardGeneric("PrintSSN")
 })
@@ -86,6 +87,7 @@ setMethod("AddIndividual", "Student", function(object, obj.vector) {
   append(obj.vector, object, after = length(obj.vector))
   return(obj.vector)
 })
+
 setMethod("PrintSSN", "SimPerson", function(object) {
   cat(object@SSN, "\n")
 })
@@ -306,7 +308,7 @@ StudentPrompt <- function(vec) {
   grade <- NULL
   gpa <- NULL
   major <- NULL
-  print(ssn <- ReadSSN())
+  #print(ssn <- ReadSSN())
   print(name <- ReadName())
   print(age <- ReadAge())
   print(id <- ReadId())
@@ -316,7 +318,7 @@ StudentPrompt <- function(vec) {
   test.Student <-
     new(
       "Student",
-      SSN = ssn,
+      # SSN = ssn,
       name = name,
       age = age,
       id = id,
@@ -349,7 +351,7 @@ PlotAgeAndGPA <- function(vect) {
   gpa <- vector(mode = "numeric")
   for (obj in vect) {
     if (is(obj, "Student")) {
-     # print(GetAge(obj))
+      # print(GetAge(obj))
       #print(GetGPA(obj))
       age <- append(age, GetAge(obj))
       gpa <- append(gpa, GetGPA(obj))
@@ -358,7 +360,8 @@ PlotAgeAndGPA <- function(vect) {
   data.vals <- data.frame(cbind(age, gpa))
   show(data.vals)
   # min length of points to form reg line is 3 so sum should be 6
-  if (length(age) == length(gpa) && (length(age)+length(gpa)) >= 6) {
+  if (length(age) == length(gpa) &&
+      (length(age) + length(gpa)) >= 6) {
     plot(
       age,
       gpa,
@@ -369,49 +372,58 @@ PlotAgeAndGPA <- function(vect) {
       xlab = "AGE",
       ylab = "GPA"
     )
-    data.info <- lm(gpa ~ age, data = data.vals)  
-    abline(data.info )
+    data.info <- lm(gpa ~ age, data = data.vals)
+    abline(data.info)
     summary(data.info)
   }
 }
 
 
 #examples of Student instance creation ----------
-# student.one <-
-#   new(
-#     "Student",
-#     grade = "Senior",
-#     GPA = 3.7,
-#     major = "Computer Science",
-#     name = "John",
-#     age = as.integer(21)
-#   )
-# student.two <-
-#   new(
-#     "Student",
-#     grade = "Junior",
-#     GPA = 4.0,
-#     major = "Biology",
-#     name = "Niya",
-#     age = as.integer(20)
-#   )
-# student.three <- new(
-#   "Student",
-#   grade = "Sophomore",
-#   GPA = 3.0,
-#   major = "Biology",
-#   name = "Niya",
-#   age = as.integer(32)
-# )
-# student.four <- new(
-#   "Student",
-#   grade = "Sophomore",
-#   GPA = 2.6,
-#   major = "Chemistry",
-#   name = "Niya",
-#   age = as.integer(19)
-# )
-# 
+StudentCreationTest <- function() {
+  student.one <-
+    new(
+      "Student",
+      grade = "Senior",
+      GPA = 3.7,
+      major = "Computer Science",
+      name = "John",
+      age = as.integer(21),
+      id = as.integer(823456309)
+    )
+  student.two <-
+    new(
+      "Student",
+      grade = "Junior",
+      GPA = 4.0,
+      major = "Biology",
+      name = "Chris",
+      age = as.integer(20),
+      id = as.integer(523656789)
+    )
+  student.three <- new(
+    "Student",
+    grade = "Sophomore",
+    GPA = 3.0,
+    major = "Biology",
+    name = "Niya",
+    age = as.integer(32),
+    id = as.integer(922324367)
+  )
+  student.four <- new(
+    "Student",
+    grade = "Sophomore",
+    GPA = 2.6,
+    major = "Chemistry",
+    name = "Shay",
+    age = as.integer(19),
+    id = as.integer(123456789)
+  )
+  return(persons.vector <-
+           c(student.one, student.two, student.three, student.four))
+}
+
+persons.vector <- StudentCreationTest()
 # persons.vector <- c(student.one, student.two, student.three, student.four)
 #overwritting a students gpa to update using a vector to store students
 #student.vector <- c(student.one, student.two)
@@ -420,6 +432,94 @@ PlotAgeAndGPA <- function(vect) {
 #show(student.vector)
 
 
-persons.vector <- ReadDecision(persons.vector)
-show(persons.vector)
-PlotAgeAndGPA(persons.vector)
+
+mmerge <- function(a, b) {
+  r <- numeric(length(a) + length(b))
+  ai <- 1
+  bi <- 1
+  j <- 1
+  
+  c <- as.numeric(GetId((a[ai])[[1]]))
+  #print(toString(c))
+  for (j in 1:length(r)) {
+    if ((ai <= length(a) &&
+         IsLess(((a[ai])[[1]]), ((b[bi])[[1]]))) || bi > length(b)) {
+      r[j] <- a[ai]
+      ai <- ai + 1
+    } else {
+      r[j] <- b[bi]
+      bi <- bi + 1
+    }
+  }
+  r
+}
+mmergesort <- function(A) {
+  if (length(A) > 1) {
+    q <- ceiling(length(A) / 2)
+    a <- mmergesort(A[1:q])
+    b <- mmergesort(A[(q + 1):length(A)])
+    mmerge(a, b)
+  } else {
+    return(A)
+  }
+}
+
+#fuction returns true if Student obj's id is less than Student obj.two's id
+IsLess <- function(obj, obj.two) {
+  if (!is.null(obj) && !is.null(obj.two)) {
+    return (as.integer(GetId(obj)) < as.integer(GetId(obj.two)))
+  } else{
+    return(0 > 1)
+    
+  }
+}
+#fuction returns true if id is identical to Student obj.two's id
+IsEqual <- function(id, obj.two) {
+  if (!is.null(id) && !is.null(obj.two)) {
+    return (as.integer(id) == as.integer(GetId(obj.two)))
+  } else{
+    return(0 > 1)
+    
+  }
+}
+#fuction returns true if id is greater than Student obj.two's id
+IsGreatearr <- function(id, obj.two) {
+  if (!is.null(id) && !is.null(obj.two)) {
+    return (as.integer(id) > as.integer(GetId(obj.two)))
+  } else{
+    return(0 > 1)
+    
+  }
+}
+#fuction returns true if id is less than Student obj.two's id
+IsLesss <- function(id, obj.two) {
+  if (!is.null(id) && !is.null(obj.two)) {
+    return (as.integer(id) < as.integer(GetId(obj.two)))
+  } else{
+    return(0 > 1)
+    
+  }
+}
+#binary search for students by id
+bSearch <- function(vect, val, low, high) {
+  mid <- as.integer((low + high) / 2)
+  print(mid)
+  if (low > high) {
+    return(-1)
+  } else if (IsEqual(val , (vect[mid])[[1]])) {
+    return(vect[mid])
+  } else if (IsGreatearr(val , (vect[mid])[[1]])) {
+    low <- mid
+    return(bSearch(vect, val, low, high))
+  } else if (IsLesss(val , (vect[mid])[[1]])) {
+    high <- mid
+    return(bSearch(vect, val, low, high))
+  }
+}
+#persons.vector <- ReadDecision(persons.vector)
+#show(persons.vector)
+#PlotAgeAndGPA(persons.vector)
+
+persons.vector <- mmergesort(persons.vector)
+persons.vector
+bSearch(persons.vector, 123456789, 1, length(persons.vector))
