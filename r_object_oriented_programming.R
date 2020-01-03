@@ -1,5 +1,5 @@
-#This program is a prototype (R oop experimenting)
-#So far, it uses linear regression to analyze the relationship between age and gpa
+#TObject Oriented Programming in R
+#It uses linear regression to analyze the relationship between age and gpa of students
 #(user inputed values)
 #Author: Isaac Taylor
 #Updated: 12/30/2019
@@ -186,10 +186,10 @@ ReadId <- function()
 {
   #take valid id
   out <- tryCatch({
-    n <- readline(prompt = "Enter students id: ")
+    n <- readline(prompt = "Enter students id (4 digit): ")
     n <- as.integer(n)
-    if (is.na(n) || as.integer(nchar(paste0(n))) != 9 || n < 0) {
-      print("Invalid Id - Good ex. 123456789")
+    if (is.na(n) || as.integer(nchar(paste0(n))) != 4 || n < 0) {
+      print("Invalid Id - Good ex. 1234")
       n <- ReadId()
     }
     return(n)
@@ -267,28 +267,38 @@ ReadAge <- function()
 }
 
 # function for object type creation decision
-ReadDecision <- function(vec)
+ReadDecision <- function(vect)
 {
   out <- tryCatch({
     n <-
-      readline(prompt = "Enter 0 to create a person object, 1 to create a student object, or 2 to quit: ")
+      readline(prompt = "Enter 1 to create a new student, 2 to view a students info, 3 to update a students info, 4 to remove a student,  or 0 to quit: ")
     n <- as.integer(n)
-    if (is.na(n) || (n != 0 && n != 1 && n != 2)) {
+    vect <- mmergesort(vect)
+    if (is.na(n) ||
+        (n != 0 && n != 1 && n != 2 && n != 3 && n != 4)) {
       print("Invalid Choice")
-      ReadDecision(vec)
-    } else if (n == 0) {
-      vec <- PersonPrompt(vec)
+      ReadDecision(vect)
     } else if (n == 1) {
-      vec <- StudentPrompt(vec)
+      vect <- StudentPrompt(vect)
+      ReadDecision(vect)
     } else if (n == 2) {
+      ViewStudent(vect)
+      ReadDecision(vect)
+    } else if (n == 3) {
+      vect <- UpdateStudent(vect)
+      ReadDecision(vect)
+    } else if (n == 4) {
+      vect <- RemoveStudent(vect)
+      ReadDecision(vect)
+    } else if (n == 0) {
       print("Done")
     }
-    return(vec)
+    return(vect)
   },
   error = function(e) {
     print(e)
     print("Invalid Choice")
-    ReadDecision(vec)
+    ReadDecision(vect)
   })
 }
 
@@ -378,72 +388,78 @@ PlotAgeAndGPA <- function(vect) {
   }
 }
 
-
-#examples of Student instance creation ----------
-StudentCreationTest <- function() {
-  student.one <-
-    new(
-      "Student",
-      grade = "Senior",
-      GPA = 3.7,
-      major = "Computer Science",
-      name = "John",
-      age = as.integer(21),
-      id = as.integer(823456309)
-    )
-  student.two <-
-    new(
-      "Student",
-      grade = "Junior",
-      GPA = 4.0,
-      major = "Biology",
-      name = "Chris",
-      age = as.integer(20),
-      id = as.integer(523656789)
-    )
-  student.three <- new(
-    "Student",
-    grade = "Sophomore",
-    GPA = 3.0,
-    major = "Biology",
-    name = "Niya",
-    age = as.integer(32),
-    id = as.integer(922324367)
-  )
-  student.four <- new(
-    "Student",
-    grade = "Sophomore",
-    GPA = 2.6,
-    major = "Chemistry",
-    name = "Shay",
-    age = as.integer(19),
-    id = as.integer(123456789)
-  )
-  return(persons.vector <-
-           c(student.one, student.two, student.three, student.four))
+ViewStudent <- function(vect) {
+  val <- ReadId()
+  target <- BSearch(vect, val , 1, length(vect))
+  if (target > 0) {
+    show(vect[target])
+    return(target)
+  } else {
+    print("Student not found")
+    return(-1)
+  }
 }
 
-persons.vector <- StudentCreationTest()
-# persons.vector <- c(student.one, student.two, student.three, student.four)
-#overwritting a students gpa to update using a vector to store students
-#student.vector <- c(student.one, student.two)
-#show(student.vector)
-#student.vector[[1]] <- SetGPA(student.vector[[1]], 3.5)
-#show(student.vector)
+UpdateStudent <- function(vect) {
+  target <- ViewStudent(vect)
+  if (target > 0) {
+    out <- tryCatch({
+      n <-
+        readline(prompt = "Which value do you wish to update (age = 1, grade = 2, major  = 3, gpa = 4)?:  ")
+      n <- as.integer(n)
+      if (is.na(n)) {
+        UpdateStudent(vect)
+      } else if (n == 1) {
+        age <- ReadAge()
+        show(vect[target])
+        vect[target] <- SetAge((vect[target])[[1]], age)
+        
+      } else if (n == 2) {
+        grade <- ReadGrade()
+        vector[target] <- SetGrade((vect[target])[[1]], grade)
+      } else if (n == 3) {
+        major <- ReadMajor()
+        vect[target] <- SetMajor((vect[target])[[1]], major)
+      } else if (n == 4) {
+        gpa <- ReadGPA()
+        show(vect[target])
+        vect[target] <- SetGPA((vect[target])[[1]], gpa)
+      }
+      show(vect[target])
+      return(vect)
+    },
+    error = function(e) {
+      print(e)
+      print("Invalid selection")
+      UpdateStudent(vect)
+    })
+  }
+  
+}
 
-
-
+RemoveStudent <- function(vect) {
+  target <- ViewStudent(vect)
+  remove <- c(NA)
+  if (target > 0) {
+    vect[target] <- NA
+    vect <- vect[!is.na(vect)]
+    cat("Student has succefully been removed.")
+    return(vect)
+  } else{
+    return(vect)
+  }
+}
+#merge function for merging vectors of Students after they are sorted
 mmerge <- function(a, b) {
   r <- numeric(length(a) + length(b))
   ai <- 1
   bi <- 1
   j <- 1
   
-  c <- as.numeric(GetId((a[ai])[[1]]))
-  #print(toString(c))
   for (j in 1:length(r)) {
     if ((ai <= length(a) &&
-         IsLess(((a[ai])[[1]]), ((b[bi])[[1]]))) || bi > length(b)) {
+         IsLess(((a[ai])[[1]]), ((b[bi])[[1]]))) ||
+        bi > length(b)) {
       r[j] <- a[ai]
       ai <- ai + 1
     } else {
@@ -453,6 +469,7 @@ mmerge <- function(a, b) {
   }
   r
 }
+#merge sort function for sorting Students
 mmergesort <- function(A) {
   if (length(A) > 1) {
     q <- ceiling(length(A) / 2)
@@ -476,7 +493,7 @@ IsLess <- function(obj, obj.two) {
 #fuction returns true if id is identical to Student obj.two's id
 IsEqual <- function(id, obj.two) {
   if (!is.null(id) && !is.null(obj.two)) {
-    return (as.integer(id) == as.integer(GetId(obj.two)))
+    return (isTRUE(as.integer(id) == as.integer(GetId(obj.two))))
   } else{
     return(0 > 1)
     
@@ -485,7 +502,7 @@ IsEqual <- function(id, obj.two) {
 #fuction returns true if id is greater than Student obj.two's id
 IsGreatearr <- function(id, obj.two) {
   if (!is.null(id) && !is.null(obj.two)) {
-    return (as.integer(id) > as.integer(GetId(obj.two)))
+    return (isTRUE(as.integer(id) > as.integer(GetId(obj.two))))
   } else{
     return(0 > 1)
     
@@ -494,32 +511,93 @@ IsGreatearr <- function(id, obj.two) {
 #fuction returns true if id is less than Student obj.two's id
 IsLesss <- function(id, obj.two) {
   if (!is.null(id) && !is.null(obj.two)) {
-    return (as.integer(id) < as.integer(GetId(obj.two)))
+    return (isTRUE(as.integer(id) < as.integer(GetId(obj.two))))
   } else{
     return(0 > 1)
     
   }
 }
 #binary search for students by id
-bSearch <- function(vect, val, low, high) {
-  mid <- as.integer((low + high) / 2)
-  print(mid)
-  if (low > high) {
+BSearch <- function(vect, val, low, high) {
+  if (length(vect) >= 1) {
+    mid <- as.integer((low + high) / 2)
+    if ((high-low <= 2)){
+        m <-IsEqual(val , (vect[mid])[[1]])  
+        l <-IsEqual(val , (vect[low])[[1]])
+        h <-IsEqual(val , (vect[high])[[1]]) 
+        if(isTRUE(m)){
+          return(mid)
+        }else if(isTRUE(l)){
+          return(low)
+        }else if(isTRUE(h)){
+          return(high)
+        }
+      return(-1)
+    } else if (IsEqual(val , (vect[mid])[[1]])) {
+      return(mid)
+    } else if (IsGreatearr(val , (vect[mid])[[1]])) {
+      low <- mid
+      return(BSearch(vect, val, low, high))
+    } else if (IsLesss(val , (vect[mid])[[1]])) {
+      high <- mid
+      return(BSearch(vect, val, low, high))
+    }
+  } else{
     return(-1)
-  } else if (IsEqual(val , (vect[mid])[[1]])) {
-    return(vect[mid])
-  } else if (IsGreatearr(val , (vect[mid])[[1]])) {
-    low <- mid
-    return(bSearch(vect, val, low, high))
-  } else if (IsLesss(val , (vect[mid])[[1]])) {
-    high <- mid
-    return(bSearch(vect, val, low, high))
   }
 }
-#persons.vector <- ReadDecision(persons.vector)
-#show(persons.vector)
-#PlotAgeAndGPA(persons.vector)
 
-persons.vector <- mmergesort(persons.vector)
-persons.vector
-bSearch(persons.vector, 123456789, 1, length(persons.vector))
+#examples of Student instance creation ----------
+StudentCreationTest <- function() {
+  student.one <-
+    new(
+      "Student",
+      grade = "Senior",
+      GPA = 3.7,
+      major = "Computer Science",
+      name = "John",
+      age = as.integer(21),
+      id = as.integer(8399)
+    )
+  student.two <-
+    new(
+      "Student",
+      grade = "Junior",
+      GPA = 4.0,
+      major = "Biology",
+      name = "Chris",
+      age = as.integer(20),
+      id = as.integer(8389)
+    )
+  student.three <- new(
+    "Student",
+    grade = "Sophomore",
+    GPA = 3.0,
+    major = "Biology",
+    name = "Niya",
+    age = as.integer(32),
+    id = as.integer(7367)
+  )
+  student.four <- new(
+    "Student",
+    grade = "Sophomore",
+    GPA = 2.6,
+    major = "Chemistry",
+    name = "Shay",
+    age = as.integer(19),
+    id = as.integer(3589)
+  )
+  return(persons.vector <-
+           c(student.one, student.two, student.three, student.four))
+}
+
+#This function starts the program
+RunProgram <- function(){
+#additional student data for testing the program 
+persons.vector <- StudentCreationTest()
+#actual user info
+persons.vector <- ReadDecision(persons.vector)
+PlotAgeAndGPA(persons.vector)
+}
+
+RunProgram()
