@@ -2,7 +2,7 @@
 #It uses linear regression to analyze the relationship between age and gpa of students
 #(user inputed values)
 #Author: Isaac Taylor
-#Updated: 12/30/2019
+#Updated: 01/02/2019
 #vector to store created persons and students
 persons.vector <- vector()
 #creation of SimPerson  class
@@ -419,6 +419,7 @@ UpdateStudent <- function(vect) {
         vector[target] <- SetGrade((vect[target])[[1]], grade)
       } else if (n == 3) {
         major <- ReadMajor()
+        
         vect[target] <- SetMajor((vect[target])[[1]], major)
       } else if (n == 4) {
         gpa <- ReadGPA()
@@ -536,10 +537,10 @@ BSearch <- function(vect, val, low, high) {
     } else if (IsEqual(val , (vect[mid])[[1]])) {
       return(mid)
     } else if (IsGreatearr(val , (vect[mid])[[1]])) {
-      low <- mid
+      low <- mid+1
       return(BSearch(vect, val, low, high))
     } else if (IsLesss(val , (vect[mid])[[1]])) {
-      high <- mid
+      high <- mid-1
       return(BSearch(vect, val, low, high))
     }
   } else{
