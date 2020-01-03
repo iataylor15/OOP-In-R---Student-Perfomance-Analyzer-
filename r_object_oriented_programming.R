@@ -1,4 +1,4 @@
-#TObject Oriented Programming in R
+#Object Oriented Programming in R
 #It uses linear regression to analyze the relationship between age and gpa of students
 #(user inputed values)
 #Author: Isaac Taylor
